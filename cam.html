@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Camera Capture and Save</title>
+    <script>
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then(function (stream) {
+          var video = document.getElementById("videoElement");
+          video.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.log("Error accessing the camera: " + error);
+        });
+
+      function capturePhoto() {
+        var video = document.getElementById("videoElement");
+        var canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        var context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(function (blob) {
+          var file = new File([blob], "captured_photo.jpg", {
+            type: "image/jpeg",
+          });
+          saveFile(file);
+        }, "image/jpeg");
+      }
+
+      function saveFile(file) {
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+          var link = document.createElement("a");
+          link.href = reader.result;
+          link.download = file.name;
+          link.click();
+        };
+
+        reader.readAsDataURL(file);
+      }
+    </script>
+  </head>
+  <body>
+    <video id="videoElement" autoplay></video>
+    <button onclick="capturePhoto()">Capture and Save</button>
+  </body>
+</html>
